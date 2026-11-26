@@ -1,0 +1,9 @@
+horizon,index,forecast,minus,dAUC,low,high
+1,LCA,Unified (seasonal record of the index),Persistence,0.18593593593593583,0.10146266358737488,0.2964047273960774
+1,LCA,Unified (seasonal record of the index),Climatology,0.002002002002002068,-0.15781414729874899,0.18253917392985747
+1,LCA,Unified (no record of the index),Persistence,0.1509009009009008,0.020935960591133118,0.226864875349323
+1,LCA,Unified (no record of the index),Climatology,-0.033033033033032955,-0.18053173241852494,0.1266888996685261
+2,LCA,Unified (seasonal record of the index),Persistence,0.16045081967213115,-0.014012123549362515,0.3175913297307028
+2,LCA,Unified (seasonal record of the index),Climatology,0.015881147540983576,-0.09097606334350394,0.19802955665024624
+2,LCA,Unified (no record of the index),Persistence,0.1465163934426229,-0.05719717161723242,0.24143645367832142
+2,LCA,Unified (no record of the index),Climatology,0.0019467213114753301,-0.14464214688742943,0.1749053662881318

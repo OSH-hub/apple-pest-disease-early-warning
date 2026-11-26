@@ -1,0 +1,8 @@
+index,label,threshold
+MB,"Marssonina blotch (damaged leaves, %)",1.0
+AB,"Alternaria blotch (damaged leaves, %)",1.0
+OFM_trap,Oriental fruit moth (trap catch),12.0
+OFM_shoot,"Oriental fruit moth (damaged shoots, %)",0.32
+OFM_fruit,"Oriental fruit moth (damaged fruit, %)",0.12
+ERM,European red mite (per 100 leaves),2.0
+LCA,Apple leaf-curling aphid (per 640 leaves),4.0

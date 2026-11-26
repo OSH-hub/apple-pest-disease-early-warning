@@ -1,0 +1,7 @@
+index,label,rows_all,rows_numeric,counties,years,county_years,share_positive,threshold,share_at_or_above_threshold,county_years_exceeding
+MB,"Marssonina blotch (damaged leaves, %)",2256,1689,25,11,216,0.42095914742451157,1.0,0.1965660153937241,91
+AB,"Alternaria blotch (damaged leaves, %)",2256,1677,25,11,211,0.40429338103756707,1.0,0.1526535480023852,72
+OFM_trap,Oriental fruit moth (trap catch),2256,1660,25,11,202,0.6391566265060241,12.0,0.2469879518072289,93
+OFM_shoot,"Oriental fruit moth (damaged shoots, %)",2256,1585,25,11,206,0.31041009463722397,0.32,0.16277602523659307,84
+OFM_fruit,"Oriental fruit moth (damaged fruit, %)",2256,1566,25,11,204,0.16666666666666666,0.12,0.07982120051085569,55
+ERM,European red mite (per 100 leaves),2256,1375,25,11,197,0.21381818181818182,2.0,0.11563636363636363,76

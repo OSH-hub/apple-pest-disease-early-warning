@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+# source inputs and record-level outputs are not redistributed
+data/
+results/
+*.env

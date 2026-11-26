@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this code or these tables, please cite the article."
+title: "Unified early warning of threshold exceedance for apple pests and diseases: analysis code and aggregate results"
+type: software
+authors:
+  - family-names: Oh
+    given-names: Seunghong
+    affiliation: "ANCHOR Project Group, Konkuk University Glocal Campus"
+repository-code: "https://github.com/OSH-hub/apple-pest-disease-early-warning"
+license: MIT
+date-released: "2026-11-26"
+preferred-citation:
+  type: unpublished
+  title: "A unified early-warning model learned from routine surveillance anticipates threshold exceedance of apple pests and diseases 15 and 30 days ahead"
+  authors:
+    - family-names: Oh
+      given-names: Seunghong
+  year: 2026
