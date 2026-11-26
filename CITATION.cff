@@ -11,7 +11,7 @@ license: MIT
 date-released: "2026-11-26"
 preferred-citation:
   type: unpublished
-  title: "A unified early-warning model learned from routine surveillance anticipates threshold exceedance of apple pests and diseases 15 and 30 days ahead"
+  title: "A unified early-warning model for threshold exceedance of apple pests and diseases 15 and 30 days ahead from routine surveillance"
   authors:
     - family-names: Oh
       given-names: Seunghong
