@@ -168,7 +168,7 @@ def fig8_ablation(tables: Path, out: Path) -> None:
         axes[0].bar(np.arange(len(build)) + off, g.AUC, width=0.34, color=c, label=f"{15 * h} days ahead")
         axes[0].errorbar(np.arange(len(build)) + off, g.AUC, yerr=[g.AUC - g.AUC_low, g.AUC_high - g.AUC], fmt="none", ecolor=INK, lw=0.7)
     axes[0].set_xticks(range(len(build))); axes[0].set_xticklabels(lab, fontsize=6.8)
-    axes[0].set_ylim(0.6, 0.90); axes[0].set_ylabel("Mean AUC of the indices"); axes[0].set_title("Predictor groups added in turn")
+    axes[0].set_ylim(0.6, 0.90); axes[0].set_ylabel("Mean AUC of the indices"); axes[0].set_title("(A) Predictor groups added in turn")
     axes[0].legend(loc="upper left", fontsize=7, ncol=2)
     drop = ["Pooled without state", "Pooled without season", "Pooled without history", "Pooled without neighbours"]
     lab2 = ["Current state", "Season", "County history", "Other counties"]
@@ -178,7 +178,7 @@ def fig8_ablation(tables: Path, out: Path) -> None:
         axes[1].errorbar(g.dAUC, np.arange(len(drop))[::-1] + off, xerr=[g.dAUC - g.low, g.high - g.dAUC], fmt="none", ecolor=INK, lw=0.7)
     axes[1].axvline(0, color=INK, lw=0.6)
     axes[1].set_yticks(np.arange(len(drop))[::-1]); axes[1].set_yticklabels(lab2)
-    axes[1].set_xlabel("Loss of mean AUC when the group is removed"); axes[1].set_title("Predictor groups removed one at a time")
+    axes[1].set_xlabel("Loss of mean AUC when the group is removed"); axes[1].set_title("(B) Predictor groups removed one at a time")
     fig.tight_layout()
     save(fig, out, "figure07_predictor_groups")
 
