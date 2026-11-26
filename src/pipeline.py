@@ -534,7 +534,7 @@ def main() -> None:
         AB.append(s); ABd.append(dd)
         print(f"  ablation: " + ", ".join(f"{k} {v:.3f}" for k, v in s[s['index'] == 'MEAN'].set_index('forecast').AUC.items()), flush=True)
 
-        for mult in (0.5, 2.0):
+        for mult in (0.5, 2.0, 3.0):
             w2 = raw.copy()
             for it in INDICES:
                 w2[it] = w2[it] / (tau[it] * mult)
@@ -546,7 +546,7 @@ def main() -> None:
         s, dd = score_table(D3, rolling(D3, {"Separate": main_variants["Separate"], "Pooled": main_variants["Pooled"]}),
                             {**tag, "setting": "currently below threshold"})
         SE.append(s); SEd.append(dd)
-        for st, g in pd.concat(SE[-3:]).groupby("setting"):
+        for st, g in pd.concat(SE[-4:]).groupby("setting"):
             print(f"  {st}: " + ", ".join(f"{k} {v:.3f}" for k, v in g[g['index'] == 'MEAN'].set_index('forecast').AUC.items()), flush=True)
 
     pd.concat(S).to_csv(tables / "A03_scores.csv", index=False)

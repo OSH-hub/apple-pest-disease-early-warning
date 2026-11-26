@@ -12,7 +12,7 @@ Every number and figure of the article is produced by the two scripts in `src/` 
 | Path | Purpose |
 |---|---|
 | `src/pipeline.py` | Data preparation, thresholds, at-risk units, predictors, models, reference forecasts, rolling-origin evaluation, year-cluster bootstrap; writes `tables/A00`-`A16` |
-| `src/figures.py` | Figures 1-13 of the article |
+| `src/figures.py` | Figures 1-9 of the article |
 | `tables/` | Released aggregate tables |
 | `figures/` | Released figures; file names carry the figure numbers of the article |
 
@@ -23,16 +23,16 @@ Every number and figure of the article is produced by the two scripts in `src/` 
 | `A00_thresholds.csv` | Threshold of each index | Section 2.2, Table 1 |
 | `A01_data_summary.csv` | Records, counties, county-years, share at or above threshold | Table 1 |
 | `A02_seasonal_pattern.csv` | Seasonal course in 15-day periods | Figure 3 |
-| `A03_scores.csv` | AUC, detection and false-detection rates, Brier score for every forecast and index | Tables 3 and 6, Figure 4 |
-| `A04_score_differences.csv` | Paired differences in AUC with bootstrap intervals | Table 3 |
-| `A05_scores_by_year.csv` | Mean AUC in each test year | Figure 6 |
-| `A06_reliability.csv` | Reliability in eight equal-count bins | Figure 11 |
-| `A07_relative_value.csv` | Relative economic value by cost-loss ratio | Figure 12 |
-| `A08_coefficients.csv` | Standardized coefficients of the model fitted to all years | Figure 10 |
-| `A09_ablation_scores.csv`, `A10_ablation_differences.csv` | Predictor groups added in turn and removed one at a time | Table 5, Figure 9 |
-| `A11_sensitivity_scores.csv`, `A12_sensitivity_differences.csv` | Other thresholds, at-risk definition and 30-day target | Section 3.5, Figure 13 |
-| `A13_new_index_scores.csv`, `A14_new_index_differences.csv` | Each index predicted by a model fitted to the other five | Table 4, Figure 8 |
-| `A15_held_out_index_scores.csv`, `A16_held_out_index_differences.csv` | Index that took no part in model development | Table 4 |
+| `A03_scores.csv` | AUC, detection and false-detection rates, Brier score for every forecast and index | Tables 2 and 4, Figure 4 |
+| `A04_score_differences.csv` | Paired differences in AUC with bootstrap intervals | Table 2 |
+| `A05_scores_by_year.csv` | Mean AUC in each test year | Figure 4 |
+| `A06_reliability.csv` | Reliability in eight equal-count bins | Figure 8 |
+| `A07_relative_value.csv` | Relative economic value by cost-loss ratio | Figure 8 |
+| `A08_coefficients.csv` | Standardized coefficients of the model fitted to all years | Section 3.3 |
+| `A09_ablation_scores.csv`, `A10_ablation_differences.csv` | Predictor groups added in turn and removed one at a time | Section 3.3, Figure 7 |
+| `A11_sensitivity_scores.csv`, `A12_sensitivity_differences.csv` | Other thresholds, at-risk definition and 30-day target | Section 3.5, Figure 9 |
+| `A13_new_index_scores.csv`, `A14_new_index_differences.csv` | Each index predicted by a model fitted to the other five | Table 3, Figure 6 |
+| `A15_held_out_index_scores.csv`, `A16_held_out_index_differences.csv` | Index that took no part in model development | Table 3 |
 
 Names used in the tables:
 
@@ -80,8 +80,8 @@ python src/figures.py  --project <project directory> --out <output directory>
 ```
 
 `pipeline.py` writes `tables/` and the record-level predictions `results/` under the output
-directory (about 15 minutes); `figures.py` reads both and writes `figures_final/`. Figures 2, 5
-and 7 need the record-level files in `results/`, which are not released; the other figures can
+directory (30 minutes or more); `figures.py` reads both and writes `figures_final/`. Figures 2
+and 5 need the record-level files in `results/`, which are not released; the other figures can
 be redrawn from the released tables.
 
 Columns expected in the surveillance file: `sigunguNm` (county), `sidoCode` (province),

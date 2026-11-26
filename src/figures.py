@@ -1,4 +1,4 @@
-"""Draw the figures of the article from the tables written by pipeline.py.
+"""Draw Figures 1-9 of the article from the tables written by pipeline.py.
 
 Usage: python src/figures.py --project <project root> --out <output dir>
 """
@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
-from sklearn.metrics import roc_curve
 
 INDICES = ["MB", "AB", "OFM_trap", "OFM_shoot", "OFM_fruit", "ERM"]
 SHORT = {"MB": "Marssonina blotch", "AB": "Alternaria blotch", "OFM_trap": "OFM trap catch", "OFM_shoot": "OFM shoot damage",
@@ -155,58 +154,7 @@ def fig4_examples(results: Path, out: Path) -> None:
                         Patch(color="#b03a48", alpha=0.55, label="Unified model"), Patch(color="#d28e2a", alpha=0.55, label="Climatology")],
                loc="upper center", ncol=3, fontsize=7.2, bbox_to_anchor=(0.5, 1.03))
     fig.tight_layout(rect=(0, 0, 0.975, 0.97))
-    save(fig, out, "figure07_example_seasons")
-
-
-def fig5_auc(tables: Path, out: Path) -> None:
-    s = pd.read_csv(tables / "A03_scores.csv")
-    fig, axes = plt.subplots(1, 2, figsize=(7.1, 3.6), sharey=True)
-    rows = INDICES + ["MEAN"]
-    labels = [SHORT[i] for i in INDICES] + ["Mean of six indices"]
-    for ax, h in zip(axes, (1, 2)):
-        for j, f in enumerate(("Persistence", "Climatology", "Separate", "Pooled")):
-            g = s[(s.horizon == h) & (s.forecast == f)].set_index("index").loc[rows]
-            y = np.arange(len(rows))[::-1] + (1.5 - j) * 0.18
-            ax.errorbar(g.AUC, y, xerr=[g.AUC - g.AUC_low, g.AUC_high - g.AUC], fmt="o", ms=3.6, lw=0.9, color=COL[f],
-                        label=NAME[f], capsize=0)
-        ax.axhline(0.5, color="#bbbbbb", lw=0.6)
-        ax.set_yticks(np.arange(len(rows))[::-1]); ax.set_yticklabels(labels)
-        ax.set_xlabel("Area under the ROC curve"); ax.set_xlim(0.4, 1.0)
-        ax.set_title(f"{15 * h} days ahead")
-        ax.grid(axis="x", color="#e5e5e5", lw=0.5)
-    axes[0].legend(loc="lower center", bbox_to_anchor=(1.03, 1.08), ncol=4, fontsize=7.5)
-    save(fig, out, "figure04_auc_by_index")
-
-
-def fig6_roc(results: Path, out: Path) -> None:
-    fig, axes = plt.subplots(2, 3, figsize=(7.1, 4.9), sharex=True, sharey=True)
-    p = pd.read_csv(results / "predictions_h1.csv")
-    for ax, it in zip(axes.ravel(), INDICES):
-        g = p[p["index"] == it]
-        for f in ("Persistence", "Climatology", "Separate", "Pooled"):
-            fpr, tpr, _ = roc_curve(g.y, g[f])
-            ax.plot(fpr, tpr, color=COL[f], lw=1.3 if f == "Pooled" else 0.9, label=NAME[f])
-        ax.plot([0, 1], [0, 1], color="#bbbbbb", lw=0.6)
-        ax.set_title(f"{SHORT[it]} ({int(g.y.sum())} events)"); ax.set_aspect(1)
-    for ax in axes[1]:
-        ax.set_xlabel("Probability of false detection")
-    for ax in axes[:, 0]:
-        ax.set_ylabel("Probability of detection")
-    axes[0, 0].legend(loc="lower right", fontsize=6.5)
-    save(fig, out, "figure05_roc_curves")
-
-
-def fig7_by_year(tables: Path, out: Path) -> None:
-    y = pd.read_csv(tables / "A05_scores_by_year.csv")
-    fig, axes = plt.subplots(1, 2, figsize=(7.1, 2.8), sharey=True)
-    for ax, h in zip(axes, (1, 2)):
-        for f in ("Persistence", "Climatology", "Separate", "Pooled"):
-            g = y[(y.horizon == h) & (y.forecast == f)]
-            ax.plot(g.year, g.mean_AUC, color=COL[f], marker="o", ms=3, lw=1.4 if f == "Pooled" else 0.9, label=NAME[f])
-        ax.set_title(f"{15 * h} days ahead"); ax.set_xlabel("Test year"); ax.grid(axis="y", color="#e5e5e5", lw=0.5)
-    axes[0].set_ylabel("Mean AUC of the indices")
-    axes[0].legend(loc="lower center", bbox_to_anchor=(1.03, 1.1), ncol=4, fontsize=7.5)
-    save(fig, out, "figure06_auc_by_year")
+    save(fig, out, "figure05_example_seasons")
 
 
 def fig8_ablation(tables: Path, out: Path) -> None:
@@ -232,7 +180,7 @@ def fig8_ablation(tables: Path, out: Path) -> None:
     axes[1].set_yticks(np.arange(len(drop))[::-1]); axes[1].set_yticklabels(lab2)
     axes[1].set_xlabel("Loss of mean AUC when the group is removed"); axes[1].set_title("Predictor groups removed one at a time")
     fig.tight_layout()
-    save(fig, out, "figure09_predictor_groups")
+    save(fig, out, "figure07_predictor_groups")
 
 
 def fig9_transfer(tables: Path, out: Path) -> None:
@@ -253,65 +201,16 @@ def fig9_transfer(tables: Path, out: Path) -> None:
         ax.set_ylim(0.4, 1.0); ax.set_title(f"{15 * h} days ahead"); ax.grid(axis="y", color="#e5e5e5", lw=0.5)
     axes[0].set_ylabel("Area under the ROC curve")
     axes[0].legend(loc="lower center", bbox_to_anchor=(1.03, 1.1), ncol=4, fontsize=7)
-    save(fig, out, "figure08_index_unseen")
-
-
-def fig10_reliability(tables: Path, out: Path) -> None:
-    r = pd.read_csv(tables / "A06_reliability.csv")
-    fig, axes = plt.subplots(1, 2, figsize=(6.0, 3.0), sharey=True)
-    for ax, h in zip(axes, (1, 2)):
-        for f, nm in (("Climatology", "Climatology"), ("Pooled", "Pooled")):
-            g = r[(r.horizon == h) & (r.forecast == f)]
-            ax.plot(g.mean_predicted, g.observed_frequency, marker="o", ms=3.5, color=COL[nm], lw=1.1, label=NAME[nm])
-        lim = 0.5
-        ax.plot([0, lim], [0, lim], color="#bbbbbb", lw=0.6)
-        ax.set_xlim(0, lim); ax.set_ylim(0, lim); ax.set_aspect(1)
-        ax.set_xlabel("Predicted probability"); ax.set_title(f"{15 * h} days ahead")
-    axes[0].set_ylabel("Observed frequency"); axes[0].legend(loc="upper left", fontsize=7.2)
-    save(fig, out, "figure11_reliability")
-
-
-def fig11_value(tables: Path, out: Path) -> None:
-    v = pd.read_csv(tables / "A07_relative_value.csv")
-    v["value"] = v.value.clip(lower=0)
-    m = v.groupby(["horizon", "forecast", "cost_loss_ratio"]).value.mean().reset_index()
-    fig, axes = plt.subplots(1, 2, figsize=(7.1, 2.8), sharey=True)
-    for ax, h in zip(axes, (1, 2)):
-        for f in ("Persistence", "Climatology", "Pooled"):
-            g = m[(m.horizon == h) & (m.forecast == f)]
-            ax.plot(g.cost_loss_ratio, g.value, color=COL[f], lw=1.4 if f == "Pooled" else 0.9, label=NAME[f])
-        ax.set_xlabel("Cost–loss ratio"); ax.set_title(f"{15 * h} days ahead"); ax.set_xlim(0, 0.6)
-    axes[0].set_ylabel("Relative economic value\n(mean of the indices)")
-    axes[1].legend(loc="upper right", fontsize=7.2)
-    save(fig, out, "figure12_relative_value")
-
-
-def fig12_coefficients(tables: Path, out: Path) -> None:
-    c = pd.read_csv(tables / "A08_coefficients.csv")
-    c = c[~c.feature.str.startswith("is_")]
-    names = {"cur": "Current value", "prev": "Previous value", "rise": "Change since previous survey", "season_max": "Season maximum so far",
-             "n_surveys": "Surveys so far", "doy_t": "Target day of year", "gap": "Days to target survey", "clim": "Seasonal hazard (climatology)",
-             "hist_freq": "County: past exceedance frequency", "last_year_max": "County: last year's maximum",
-             "nat_cur": "Other counties: current mean", "prov_cur": "Same province: current mean", "nat_exceeded": "Other counties: share exceeded"}
-    order = list(names)
-    fig, ax = plt.subplots(figsize=(5.2, 3.6))
-    for h, col, off in ((1, "#b03a48", 0.18), (2, "#5b8fbd", -0.18)):
-        g = c[c.horizon == h].set_index("feature").loc[order]
-        ax.barh(np.arange(len(order))[::-1] + off, g.coefficient, height=0.34, color=col, label=f"{15 * h} days ahead")
-    ax.axvline(0, color=INK, lw=0.6)
-    ax.set_yticks(np.arange(len(order))[::-1]); ax.set_yticklabels([names[k] for k in order], fontsize=7.2)
-    ax.set_xlabel("Standardized coefficient (log-odds per standard deviation)")
-    ax.legend(loc="lower right", fontsize=7.2)
-    save(fig, out, "figure10_coefficients")
+    save(fig, out, "figure06_index_unseen")
 
 
 def fig13_sensitivity(tables: Path, out: Path) -> None:
     d = pd.read_csv(tables / "A12_sensitivity_differences.csv")
     base = pd.read_csv(tables / "A04_score_differences.csv").assign(setting="main analysis")
     d = pd.concat([base, d])
-    settings = ["main analysis", "threshold x 0.5", "threshold x 2.0", "currently below threshold"]
-    lab = ["Main analysis", "Threshold halved", "Threshold doubled", "At risk: currently\nbelow threshold"]
-    fig, axes = plt.subplots(1, 2, figsize=(7.1, 2.9), sharey=True)
+    settings = ["main analysis", "threshold x 0.5", "threshold x 2.0", "threshold x 3.0", "currently below threshold"]
+    lab = ["Main analysis", "Threshold halved", "Threshold doubled", "Threshold tripled", "At risk: currently\nbelow threshold"]
+    fig, axes = plt.subplots(1, 2, figsize=(7.1, 3.3), sharey=True)
     for ax, h in zip(axes, (1, 2)):
         for j, (b, col) in enumerate((("Persistence", COL["Persistence"]), ("Climatology", COL["Climatology"]), ("Separate", COL["Separate"]))):
             g = d[(d.horizon == h) & (d["index"] == "MEAN") & (d.forecast == "Pooled") & (d.minus == b)].set_index("setting").loc[settings]
@@ -322,7 +221,63 @@ def fig13_sensitivity(tables: Path, out: Path) -> None:
         ax.set_yticks(np.arange(len(settings))[::-1]); ax.set_yticklabels(lab)
         ax.set_xlabel("Gain in mean AUC of the unified model"); ax.set_title(f"{15 * h} days ahead")
     axes[0].legend(loc="lower center", bbox_to_anchor=(1.03, 1.1), ncol=3, fontsize=7)
-    save(fig, out, "figure13_sensitivity")
+    save(fig, out, "figure09_sensitivity")
+
+
+def fig_skill(tables: Path, out: Path) -> None:
+    """Figure 4: AUC by index (upper row) and mean AUC by test year (lower row)."""
+    s = pd.read_csv(tables / "A03_scores.csv")
+    y = pd.read_csv(tables / "A05_scores_by_year.csv")
+    fig, axes = plt.subplots(2, 2, figsize=(7.1, 6.0), sharey="row", gridspec_kw={"height_ratios": [1.35, 1]})
+    rows = INDICES + ["MEAN"]
+    labels = [SHORT[i] for i in INDICES] + ["Mean of six indices"]
+    fs = ("Persistence", "Climatology", "Separate", "Pooled")
+    for k, h in enumerate((1, 2)):
+        ax = axes[0, k]
+        for j, f in enumerate(fs):
+            g = s[(s.horizon == h) & (s.forecast == f)].set_index("index").loc[rows]
+            yy = np.arange(len(rows))[::-1] + (1.5 - j) * 0.18
+            ax.errorbar(g.AUC, yy, xerr=[g.AUC - g.AUC_low, g.AUC_high - g.AUC], fmt="o", ms=3.6, lw=0.9, color=COL[f], label=NAME[f], capsize=0)
+        ax.set_yticks(np.arange(len(rows))[::-1]); ax.set_yticklabels(labels)
+        ax.set_xlabel("Area under the ROC curve"); ax.set_xlim(0.4, 1.0)
+        ax.set_title(f"({'AB'[k]}) {15 * h} days ahead, by index"); ax.grid(axis="x", color="#e5e5e5", lw=0.5)
+        ax = axes[1, k]
+        for f in fs:
+            g = y[(y.horizon == h) & (y.forecast == f)]
+            ax.plot(g.year, g.mean_AUC, color=COL[f], marker="o", ms=3, lw=1.4 if f == "Pooled" else 0.9)
+        ax.set_ylim(0.45, 0.95); ax.set_xlabel("Test year"); ax.grid(axis="y", color="#e5e5e5", lw=0.5)
+        ax.set_title(f"({'CD'[k]}) {15 * h} days ahead, by test year")
+    axes[1, 0].set_ylabel("Mean AUC of the indices")
+    fig.tight_layout(rect=(0, 0, 1, 0.95))
+    fig.legend(*axes[0, 0].get_legend_handles_labels(), loc="upper center", ncol=4, fontsize=7.5)
+    save(fig, out, "figure04_skill")
+
+
+def fig_reliability_value(tables: Path, out: Path) -> None:
+    """Figure 8: reliability (upper row) and relative economic value (lower row)."""
+    r = pd.read_csv(tables / "A06_reliability.csv")
+    v = pd.read_csv(tables / "A07_relative_value.csv")
+    v["value"] = v.value.clip(lower=0)
+    m = v.groupby(["horizon", "forecast", "cost_loss_ratio"]).value.mean().reset_index()
+    fig, axes = plt.subplots(2, 2, figsize=(6.6, 5.6))
+    for k, h in enumerate((1, 2)):
+        ax = axes[0, k]
+        for f in ("Climatology", "Pooled"):
+            g = r[(r.horizon == h) & (r.forecast == f)]
+            ax.plot(g.mean_predicted, g.observed_frequency, marker="o", ms=3.5, color=COL[f], lw=1.1, label=NAME[f])
+        ax.plot([0, 0.5], [0, 0.5], color="#bbbbbb", lw=0.6)
+        ax.set_xlim(0, 0.5); ax.set_ylim(0, 0.5); ax.set_aspect(1)
+        ax.set_xlabel("Predicted probability"); ax.set_title(f"({'AB'[k]}) Reliability, {15 * h} days ahead")
+        ax = axes[1, k]
+        for f in ("Persistence", "Climatology", "Pooled"):
+            g = m[(m.horizon == h) & (m.forecast == f)]
+            ax.plot(g.cost_loss_ratio, g.value, color=COL[f], lw=1.4 if f == "Pooled" else 0.9, label=NAME[f])
+        ax.set_xlabel("Cost\u2013loss ratio"); ax.set_xlim(0, 0.6); ax.set_ylim(0, 0.5)
+        ax.set_title(f"({'CD'[k]}) Relative value, {15 * h} days ahead")
+    axes[0, 0].set_ylabel("Observed frequency"); axes[0, 0].legend(loc="upper left", fontsize=7.2)
+    axes[1, 0].set_ylabel("Relative economic value\n(mean of the indices)"); axes[1, 1].legend(loc="upper right", fontsize=7.2)
+    fig.tight_layout()
+    save(fig, out, "figure08_reliability_value")
 
 
 def main() -> None:
@@ -332,9 +287,8 @@ def main() -> None:
     a = ap.parse_args()
     tables, results, figs = a.out / "tables", a.out / "results", a.out / "figures_final"
     figs.mkdir(exist_ok=True)
-    fig1_workflow(figs); fig2_study_area(a.project, figs, tables); fig3_seasonal(tables, figs); fig4_examples(results, figs)
-    fig5_auc(tables, figs); fig6_roc(results, figs); fig7_by_year(tables, figs); fig8_ablation(tables, figs)
-    fig9_transfer(tables, figs); fig10_reliability(tables, figs); fig11_value(tables, figs); fig12_coefficients(tables, figs)
+    fig1_workflow(figs); fig2_study_area(a.project, figs, tables); fig3_seasonal(tables, figs); fig_skill(tables, figs)
+    fig4_examples(results, figs); fig9_transfer(tables, figs); fig8_ablation(tables, figs); fig_reliability_value(tables, figs)
     fig13_sensitivity(tables, figs)
     print("figures written to", figs)
 
