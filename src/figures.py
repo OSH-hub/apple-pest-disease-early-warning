@@ -58,11 +58,11 @@ def fig1_workflow(out: Path) -> None:
     def arrow(a, b):
         ax.add_patch(FancyArrowPatch(a, b, arrowstyle="-|>", mutation_scale=9, lw=0.8, color=INK))
 
-    box(1, 30, 21, 18, "Routine surveillance", "25 apple counties\nsurveys about every 15 days\n2015–2025\n6 pest and disease indices", "#e8eef5")
+    box(1, 30, 21, 18, "Routine surveillance", "25 apple counties\nsurveys about every 15 days\n2015–2025\nsix pest and disease indices", "#e8eef5")
     box(27, 30, 21, 18, "At-risk units", "index divided by its threshold\ncounty still below threshold\ntarget: at or above threshold\n15 or 30 days later", "#e8eef5")
-    box(53, 30, 21, 18, "Predictors known today", "current state of the county\nseason and seasonal hazard\ncounty history\nstate of the other counties", "#f5ece0")
+    box(53, 30, 21, 18, "Survey-day predictors", "current state of the county\nseason and seasonal hazard\ncounty history\nstate of the other counties", "#f5ece0")
     box(79, 30, 20, 18, "Unified model", "one logistic model\nfitted to all six indices\nwith an index term", "#f3dfe1")
-    box(27, 3, 21, 18, "Reference forecasts", "persistence, climatology\nseparate model per index\ngradient boosting", "#eeeeee")
+    box(27, 3, 21, 18, "Comparison models", "persistence, climatology\nseparate model per index\ngradient boosting", "#eeeeee")
     box(53, 3, 21, 18, "Prospective test", "each year 2018–2025\npredicted from earlier years\nyear-cluster bootstrap\nintervals", "#e3f0ea")
     box(79, 3, 20, 18, "Warning", "probability of\nexceedance per county\nand index, 15 and 30 days\nahead", "#f3dfe1")
     for a, b in (((22.3, 39), (26.7, 39)), ((48.3, 39), (52.7, 39)), ((74.3, 39), (78.7, 39)), ((89, 29.7), (89, 21.3)),
@@ -88,7 +88,7 @@ def fig2_study_area(root: Path, out: Path, tables: Path) -> None:
     for ax in axes[:, 0]:
         ax.set_ylabel("Latitude (°N)")
     cb = fig.colorbar(sc, ax=axes, shrink=0.6, pad=0.02)
-    cb.set_label("Share of surveyed years in which the index reached its threshold")
+    cb.set_label("Share of surveyed years in which the index reaches its threshold")
     save(fig, out, "figure02_study_area")
 
 
@@ -198,7 +198,7 @@ def fig9_transfer(tables: Path, out: Path) -> None:
             ax.errorbar(x, g.AUC, yerr=[g.AUC - g.AUC_low, g.AUC_high - g.AUC], fmt="none", ecolor=INK, lw=0.5)
         ax.set_xticks(range(6))
         ax.set_xticklabels(["Marssonina\nblotch", "Alternaria\nblotch", "OFM\ntrap", "OFM\nshoot", "OFM\nfruit", "Red\nmite"], fontsize=6.2, rotation=35, ha="right", rotation_mode="anchor")
-        ax.set_ylim(0.4, 1.0); ax.set_title(f"{15 * h} days ahead"); ax.grid(axis="y", color="#e5e5e5", lw=0.5)
+        ax.set_ylim(0.4, 1.0); ax.set_title(f"({'AB'[h - 1]}) {15 * h} days ahead"); ax.grid(axis="y", color="#e5e5e5", lw=0.5)
     axes[0].set_ylabel("Area under the ROC curve")
     axes[0].legend(loc="lower center", bbox_to_anchor=(1.03, 1.1), ncol=4, fontsize=7)
     save(fig, out, "figure06_index_unseen")
@@ -209,7 +209,7 @@ def fig13_sensitivity(tables: Path, out: Path) -> None:
     base = pd.read_csv(tables / "A04_score_differences.csv").assign(setting="main analysis")
     d = pd.concat([base, d])
     settings = ["main analysis", "threshold x 0.5", "threshold x 2.0", "threshold x 3.0", "currently below threshold"]
-    lab = ["Main analysis", "Threshold halved", "Threshold doubled", "Threshold tripled", "At risk: currently\nbelow threshold"]
+    lab = ["Main analysis", "Thresholds halved", "Thresholds doubled", "Thresholds tripled", "At risk: currently\nbelow threshold"]
     fig, axes = plt.subplots(1, 2, figsize=(7.1, 3.3), sharey=True)
     for ax, h in zip(axes, (1, 2)):
         for j, (b, col) in enumerate((("Persistence", COL["Persistence"]), ("Climatology", COL["Climatology"]), ("Separate", COL["Separate"]))):
@@ -219,7 +219,7 @@ def fig13_sensitivity(tables: Path, out: Path) -> None:
                         label=f"minus {NAME[b].lower()}")
         ax.axvline(0, color=INK, lw=0.6)
         ax.set_yticks(np.arange(len(settings))[::-1]); ax.set_yticklabels(lab)
-        ax.set_xlabel("Gain in mean AUC of the unified model"); ax.set_title(f"{15 * h} days ahead")
+        ax.set_xlabel("Gain in mean AUC of the unified model"); ax.set_title(f"({'AB'[h - 1]}) {15 * h} days ahead")
     axes[0].legend(loc="lower center", bbox_to_anchor=(1.03, 1.1), ncol=3, fontsize=7)
     save(fig, out, "figure09_sensitivity")
 
