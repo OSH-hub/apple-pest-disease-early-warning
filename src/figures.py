@@ -62,7 +62,7 @@ def fig1_workflow(out: Path) -> None:
     box(27, 30, 21, 18, "At-risk units", "index divided by its threshold\ncounty still below threshold\ntarget: at or above threshold\n15 or 30 days later", "#e8eef5")
     box(53, 30, 21, 18, "Survey-day predictors", "current state of the county\nseason and seasonal hazard\ncounty history\nstate of the other counties", "#f5ece0")
     box(79, 30, 20, 18, "Unified model", "one logistic model\nfitted to all six indices\nwith an index term", "#f3dfe1")
-    box(27, 3, 21, 18, "Comparison models", "persistence, climatology\nseparate model per index\ngradient boosting", "#eeeeee")
+    box(27, 3, 21, 18, "Comparison models", "persistence, climatology\nseparate model per index\nboosting, forest, LSTM", "#eeeeee")
     box(53, 3, 21, 18, "Prospective test", "each year 2018–2025\npredicted from earlier years\nyear-cluster bootstrap\nintervals", "#e3f0ea")
     box(79, 3, 20, 18, "Warning", "probability of\nexceedance per county\nand index, 15 and 30 days\nahead", "#f3dfe1")
     for a, b in (((22.3, 39), (26.7, 39)), ((48.3, 39), (52.7, 39)), ((74.3, 39), (78.7, 39)), ((89, 29.7), (89, 21.3)),

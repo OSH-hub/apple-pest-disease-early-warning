@@ -14,6 +14,7 @@ Every number and figure of the article is produced by the two scripts in `src/` 
 | `src/pipeline.py` | Data preparation, thresholds, at-risk units, predictors, models, reference forecasts, rolling-origin evaluation, year-cluster bootstrap; writes `tables/A00`-`A16` |
 | `src/figures.py` | Figures 1-9 of the article |
 | `src/check_scheduled_date.py` | Target date and interval replaced by their scheduled values; writes `tables/A17`-`A18` |
+| `src/compare_learners.py` | Random forest and LSTM network on the units and design of the unified model; writes `tables/A19`-`A20` |
 | `tables/` | Released aggregate tables |
 | `figures/` | Released figures; file names carry the figure numbers of the article |
 
@@ -35,6 +36,7 @@ Every number and figure of the article is produced by the two scripts in `src/` 
 | `A13_new_index_scores.csv`, `A14_new_index_differences.csv` | Each index predicted by a model fitted to the other five | Table 3, Figure 6 |
 | `A15_held_out_index_scores.csv`, `A16_held_out_index_differences.csv` | Index that took no part in model development | Table 3 |
 | `A17_scheduled_date_scores.csv`, `A18_scheduled_date_differences.csv` | Target date and interval replaced by their scheduled values | Section 3.5 |
+| `A19_learner_scores.csv`, `A20_learner_differences.csv` | Gradient boosting, random forest and LSTM network compared with the unified model | Table 2, Section 3.2 |
 
 Names used in the tables:
 
@@ -80,6 +82,7 @@ and run
 python src/pipeline.py --project <project directory> --out <output directory>
 python src/figures.py  --project <project directory> --out <output directory>
 python src/check_scheduled_date.py --project <project directory> --out <output directory>
+python src/compare_learners.py --project <project directory> --out <output directory>
 ```
 
 `pipeline.py` writes `tables/` and the record-level predictions `results/` under the output
