@@ -1,7 +1,3 @@
-"""Draw Figures 1-9 of the article from the tables written by pipeline.py.
-
-Usage: python src/figures.py --project <project root> --out <output dir>
-"""
 from __future__ import annotations
 
 import argparse
@@ -34,7 +30,7 @@ def save(fig, out: Path, name: str) -> None:
                     **({"pil_kwargs": {"compression": "tiff_lzw"}} if ext == "tif" else {}))
     plt.close(fig)
     from PIL import Image
-    with Image.open(out / f"{name}.tif") as im:          # journals ask for RGB without an alpha channel
+    with Image.open(out / f"{name}.tif") as im:
         rgba = im.convert("RGBA")
         rgb = Image.new("RGB", im.size, "white")
         rgb.paste(rgba, mask=rgba.split()[3])
@@ -225,7 +221,6 @@ def fig13_sensitivity(tables: Path, out: Path) -> None:
 
 
 def fig_skill(tables: Path, out: Path) -> None:
-    """Figure 4: AUC by index (upper row) and mean AUC by test year (lower row)."""
     s = pd.read_csv(tables / "A03_scores.csv")
     y = pd.read_csv(tables / "A05_scores_by_year.csv")
     fig, axes = plt.subplots(2, 2, figsize=(7.1, 6.0), sharey="row", gridspec_kw={"height_ratios": [1.35, 1]})
@@ -254,7 +249,6 @@ def fig_skill(tables: Path, out: Path) -> None:
 
 
 def fig_reliability_value(tables: Path, out: Path) -> None:
-    """Figure 8: reliability (upper row) and relative economic value (lower row)."""
     r = pd.read_csv(tables / "A06_reliability.csv")
     v = pd.read_csv(tables / "A07_relative_value.csv")
     v["value"] = v.value.clip(lower=0)

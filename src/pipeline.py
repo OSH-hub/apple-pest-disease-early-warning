@@ -1,14 +1,4 @@
-"""Unified early warning of first threshold exceedance for apple pests and diseases.
-
-Unit      a survey of a county in a year at which the index has stayed below its threshold
-          in every survey of the season so far.
-Target    the index is at or above the threshold at the survey h rounds later
-          (h = 1, about 15 days; h = 2, about 30 days).
-Design    rolling origin: each test year is predicted by a model fitted to earlier years only.
-
-Usage: python src/pipeline.py --project <project root> --out <output dir>
-Writes tables/A*.csv and results/predictions_h*.csv under the output directory.
-"""
+"""Usage: python src/pipeline.py --project <project root> --out <output dir>"""
 from __future__ import annotations
 
 import argparse
@@ -32,12 +22,12 @@ ITEMS = {
     "복숭아순나방(피해신초율)": "OFM_shoot", "복숭아순나방(피해과율)": "OFM_fruit", "사과응애(100잎당마리수)": "ERM",
 }
 INDICES = list(ITEMS.values())
-HELD_OUT = {"사과혹진딧물(640잎당마리수)": "LCA"}     # index kept out of model development, used as an independent test
+HELD_OUT = {"사과혹진딧물(640잎당마리수)": "LCA"}
 LABEL = {"MB": "Marssonina blotch (damaged leaves, %)", "AB": "Alternaria blotch (damaged leaves, %)",
          "OFM_trap": "Oriental fruit moth (trap catch)", "OFM_shoot": "Oriental fruit moth (damaged shoots, %)",
          "OFM_fruit": "Oriental fruit moth (damaged fruit, %)", "ERM": "European red mite (per 100 leaves)"}
-LEAF_DISEASE_THRESHOLD = 1.0      # % damaged leaves, for MB and AB
-REFERENCE_YEARS = (2015, 2017)    # thresholds of the other indices: median positive value in these years
+LEAF_DISEASE_THRESHOLD = 1.0
+REFERENCE_YEARS = (2015, 2017)
 GROUPS = {
     "state": ["cur", "prev", "rise", "season_max", "n_surveys"],
     "season": ["doy_t", "gap", "clim"],
@@ -49,7 +39,6 @@ GROUPS = {
 CORE = ["state", "season", "history", "neighbours"]
 
 
-# ---------------------------------------------------------------- data
 def load_panel(root: Path) -> tuple[pd.DataFrame, dict]:
     a = pd.read_csv(root / "data/ncpms_api/apple_surveillance_sigungu.csv", dtype=str)
     flow = {"rows_all_indices": len(a)}
@@ -92,9 +81,7 @@ def load_weather(root: Path) -> pd.DataFrame:
     return wx[["sigunguNm", "date"] + GROUPS["weather"]].rename(columns={"sigunguNm": "county"})
 
 
-# ---------------------------------------------------------------- units and features
 def build_units(w: pd.DataFrame, item: str, h: int, at_risk: str = "first") -> pd.DataFrame:
-    """At-risk surveys of one index. Values in ``w`` are already divided by the threshold."""
     rows = []
     for (county, year), s in w.dropna(subset=[item]).groupby(["sigunguNm", "year"]):
         s = s.reset_index(drop=True)
@@ -115,7 +102,6 @@ def build_units(w: pd.DataFrame, item: str, h: int, at_risk: str = "first") -> p
 
 
 def add_neighbours(d: pd.DataFrame, w: pd.DataFrame, item: str) -> None:
-    """State of the other counties in surveys up to the current date of the same year."""
     by_year = {y: g for y, g in w.dropna(subset=[item]).groupby("year")}
     nat_cur, prov_cur, nat_exc = [], [], []
     for r in d.itertuples():
@@ -142,7 +128,6 @@ def add_history(d: pd.DataFrame, w: pd.DataFrame, item: str) -> None:
 
 
 def climatology(d: pd.DataFrame, fit: np.ndarray, apply: np.ndarray) -> np.ndarray:
-    """Seasonal hazard of first exceedance (15-day bins of the target date) times a shrunk county ratio."""
     b = (d.doy_t // 15).to_numpy()
     yv = d.y.to_numpy()
     n = np.bincount(b[fit], minlength=b.max() + 1).astype(float)
@@ -172,7 +157,6 @@ def make_dataset(w: pd.DataFrame, h: int, at_risk: str = "first", weather: pd.Da
     return D
 
 
-# ---------------------------------------------------------------- models
 def fit_predict(d: pd.DataFrame, cols: list[str], tr: np.ndarray, te: np.ndarray, kind: str = "logit") -> np.ndarray:
     x = d[cols]
     x = x.fillna(x[tr].median()).fillna(0.0)
@@ -189,7 +173,6 @@ def feature_cols(groups: list[str]) -> list[str]:
 
 
 def fill_climatology(D: pd.DataFrame, y: int) -> None:
-    """Climatology of every index for test year ``y`` and, out of year, for its training years."""
     for it in INDICES:
         k = (D["index"] == it).to_numpy()
         d = D[k].reset_index(drop=True)
@@ -204,7 +187,6 @@ def fill_climatology(D: pd.DataFrame, y: int) -> None:
 
 
 def rolling(D: pd.DataFrame, variants: dict[str, dict]) -> dict[str, np.ndarray]:
-    """Rolling-origin predictions. ``variants`` maps a name to {groups, kind, scope, dummies, exclude_index}."""
     years = np.sort(D.year.unique())
     P = {k: np.full(len(D), np.nan) for k in ["Persistence", "Climatology", *variants]}
     dummies = [f"is_{it}" for it in INDICES]
@@ -221,7 +203,7 @@ def rolling(D: pd.DataFrame, variants: dict[str, dict]) -> dict[str, np.ndarray]
                     k = (D["index"] == it).to_numpy()
                     if (tr_all & k).any() and (te_all & k).any():
                         P[name][te_all & k] = fit_predict(D, cols, tr_all & k, te_all & k, v.get("kind", "logit"))
-            elif v.get("scope") == "transfer":      # each index predicted by a model that never saw it
+            elif v.get("scope") == "transfer":
                 for it in INDICES:
                     k = (D["index"] == it).to_numpy()
                     if (te_all & k).any():
@@ -233,7 +215,6 @@ def rolling(D: pd.DataFrame, variants: dict[str, dict]) -> dict[str, np.ndarray]
 
 
 def held_out_index(D: pd.DataFrame, w: pd.DataFrame, item: str, h: int, tag: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """An index that took no part in model development, predicted by the model fitted to the six indices."""
     E = build_units(w, item, h)
     add_neighbours(E, w, item)
     add_history(E, w, item)
@@ -270,7 +251,6 @@ def held_out_index(D: pd.DataFrame, w: pd.DataFrame, item: str, h: int, tag: dic
     return pd.DataFrame(rows), pd.DataFrame(diffs)
 
 
-# ---------------------------------------------------------------- scores
 def boot_weights(years: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     uy = np.unique(years)
     draws = rng.integers(0, len(uy), size=(N_BOOT, len(uy)))
@@ -289,7 +269,6 @@ def interval(x: np.ndarray) -> tuple[float, float]:
 
 
 def warn_share(p: np.ndarray, rate: float) -> np.ndarray:
-    """Warning for the highest ``rate`` of the forecasts; units tied at the cut share the remaining warnings."""
     k = max(1, int(round(rate * len(p))))
     cut = np.sort(p)[::-1][k - 1]
     above, tie = p > cut, p == cut
@@ -299,7 +278,6 @@ def warn_share(p: np.ndarray, rate: float) -> np.ndarray:
 
 
 def matched(p: np.ndarray, y: np.ndarray, rate: float, years: np.ndarray | None = None) -> tuple[float, float]:
-    """Detection and false-alarm rate; with ``years`` the warnings are allotted within each year."""
     if years is None:
         warn = warn_share(p, rate)
     else:
@@ -388,10 +366,6 @@ def reliability_table(D: pd.DataFrame, P: dict[str, np.ndarray], tag: dict, bins
 
 
 def value_table(D: pd.DataFrame, P: dict[str, np.ndarray], tag: dict) -> pd.DataFrame:
-    """Relative economic value by cost-loss ratio, averaged over the indices.
-
-    Probability forecasts act when the probability exceeds the cost-loss ratio; persistence
-    is represented by its best threshold at each ratio."""
     alphas = np.arange(0.01, 0.61, 0.01)
     ok = ~np.isnan(P["Pooled"])
     rows = []
@@ -415,8 +389,7 @@ def value_table(D: pd.DataFrame, P: dict[str, np.ndarray], tag: dict) -> pd.Data
 
 
 def coefficient_table(D: pd.DataFrame, tag: dict) -> pd.DataFrame:
-    """Standardised coefficients of the pooled model fitted to all years (for interpretation only)."""
-    for it in INDICES:                      # climatology of every year from the other years
+    for it in INDICES:
         k = (D["index"] == it).to_numpy()
         d = D[k].reset_index(drop=True)
         clim = np.full(len(d), np.nan)
@@ -433,7 +406,6 @@ def coefficient_table(D: pd.DataFrame, tag: dict) -> pd.DataFrame:
     return pd.DataFrame({**tag, "feature": cols, "coefficient": m.coef_[0]})
 
 
-# ---------------------------------------------------------------- main
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--project", type=Path, required=True)
@@ -449,7 +421,6 @@ def main() -> None:
     LABEL["LCA"] = "Apple leaf-curling aphid (per 640 leaves)"
     pd.DataFrame([{"index": it, "label": LABEL[it], "threshold": tau[it]} for it in INDICES + ["LCA"]]).to_csv(tables / "A00_thresholds.csv", index=False)
 
-    # descriptive tables on the raw scale
     desc = []
     for it in INDICES:
         s = raw.dropna(subset=[it])
@@ -490,7 +461,7 @@ def main() -> None:
         "Pooled without history": {"groups": ["state", "season", "neighbours"]},
         "Pooled without neighbours": {"groups": ["state", "season", "history"]},
     }
-    no_record = ["state", "calendar", "neighbours"]     # predictors that need no earlier record of the index
+    no_record = ["state", "calendar", "neighbours"]
     new_index = {
         "Pooled": {"groups": CORE},
         "Transfer (index unseen)": main_variants["Transfer (index unseen)"],
@@ -522,7 +493,7 @@ def main() -> None:
         s, dd = score_table(D, rolling(D, new_index), tag)
         NI.append(s); NId.append(dd)
         print("  new index: " + ", ".join(f"{k} {v:.3f}" for k, v in s[s['index'] == 'MEAN'].set_index('forecast').AUC.items()), flush=True)
-        if h == 2:      # units whose intermediate survey was still below the threshold
+        if h == 2:
             keep = (D.mid == 0).to_numpy()
             Pm = {k: np.where(keep, P[k], np.nan) for k in ("Persistence", "Climatology", "Separate", "Pooled")}
             s, dd = score_table(D, Pm, {**tag, "setting": "below threshold at the intermediate survey"})

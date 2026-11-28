@@ -1,14 +1,4 @@
-"""Other learners on the units, predictors and rolling-origin design of the unified model.
-
-Random forest   all indices, the predictors of the unified model and the index terms.
-LSTM            the survey sequence of the index in the county and season (value, day of year,
-                days since the previous survey) read by a recurrent layer, joined with the season,
-                history, neighbour and index predictors of the unified model.
-Settings are fixed in advance; nothing is tuned on the test years.
-
-Usage: python src/compare_learners.py --project <project root> --out <output dir>
-Writes tables/A19_learner_scores.csv and tables/A20_learner_differences.csv.
-"""
+"""Usage: python src/compare_learners.py --project <project root> --out <output dir>"""
 from __future__ import annotations
 
 import argparse
@@ -28,7 +18,6 @@ STATIC = pl.feature_cols(["season", "history", "neighbours"])
 
 
 def sequences(D: pd.DataFrame, w: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
-    """Padded survey sequences up to the current survey: log value, day of year / 365, days since previous / 15."""
     series = {}
     for it in pl.INDICES:
         for (county, year), s in w.dropna(subset=[it]).groupby(["sigunguNm", "year"]):

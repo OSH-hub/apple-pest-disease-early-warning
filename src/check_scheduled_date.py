@@ -1,10 +1,4 @@
-"""Scheduled target date: the day of year of the target survey and the interval to it are
-replaced by their scheduled values (current survey plus 15 days per round). Units and
-targets are unchanged.
-
-Usage: python src/check_scheduled_date.py --project <project root> --out <output dir>
-Writes tables/A17_scheduled_date_scores.csv and tables/A18_scheduled_date_differences.csv.
-"""
+"""Usage: python src/check_scheduled_date.py --project <project root> --out <output dir>"""
 from __future__ import annotations
 
 import argparse
